@@ -1,0 +1,163 @@
+{
+  "numFound": 81,
+  "start": 0,
+  "numFoundExact": true,
+  "docs": [
+    {
+      "key": "/works/OL807816W",
+      "title": "Each Peach Pear Plum",
+      "editions": {
+        "numFound": 1,
+        "start": 0,
+        "numFoundExact": true,
+        "docs": [
+          {
+            "key": "/books/OL9688593M",
+            "type": "edition",
+            "title": "Each Peach Pear Plum (Viking Kestrel Picture Books)",
+            "title_suggest": "Each Peach Pear Plum (Viking Kestrel Picture Books)",
+            "cover_i": 1333917,
+            "publisher": [
+              "Viking Children's Books"
+            ],
+            "publish_date": [
+              "October 30, 2003"
+            ],
+            "publish_year": [
+              2003
+            ],
+            "isbn": [
+              "9780670914005",
+              "0670914002"
+            ],
+            "id_goodreads": [
+              "709467"
+            ],
+            "ebook_access": "no_ebook",
+            "has_fulltext": false,
+            "public_scan_b": false,
+            "publisher_facet": [
+              "Viking Children's Books"
+            ],
+            "_version_": 1743451283867566080
+          }
+        ]
+      }
+    },
+    {
+      "key": "/works/OL11068833M",
+      "title": "Blinks (Viking Kestrel Picture Books)",
+      "editions": {
+        "numFound": 1,
+        "start": 0,
+        "numFoundExact": true,
+        "docs": [
+          {
+            "key": "/books/OL11068833M",
+            "type": "edition",
+            "title": "Blinks (Viking Kestrel Picture Books)",
+            "title_suggest": "Blinks (Viking Kestrel Picture Books)",
+            "publisher": [
+              "Viking Children's Books"
+            ],
+            "publish_date": [
+              "March 26, 1987"
+            ],
+            "publish_year": [
+              1987
+            ],
+            "isbn": [
+              "9780670808595",
+              "0670808598"
+            ],
+            "ebook_access": "no_ebook",
+            "has_fulltext": false,
+            "public_scan_b": false,
+            "publisher_facet": [
+              "Viking Children's Books"
+            ],
+            "_version_": 1735679030438395904
+          }
+        ]
+      }
+    },
+    {
+      "key": "/works/OL19793284W",
+      "title": "Big Cat Dreaming (Viking Kestrel Picture Books)",
+      "editions": {
+        "numFound": 1,
+        "start": 0,
+        "numFoundExact": true,
+        "docs": [
+          {
+            "key": "/books/OL27004810M",
+            "type": "edition",
+            "title": "Big Cat Dreaming (Viking Kestrel Picture Books)",
+            "title_suggest": "Big Cat Dreaming (Viking Kestrel Picture Books)",
+            "cover_i": 8597282,
+            "publisher": [
+              "Viking Children's Books"
+            ],
+            "publish_date": [
+              "Feb 27, 1997"
+            ],
+            "publish_year": [
+              1997
+            ],
+            "isbn": [
+              "9780670858323",
+              "0670858323"
+            ],
+            "ebook_access": "no_ebook",
+            "has_fulltext": false,
+            "public_scan_b": false,
+            "publisher_facet": [
+              "Viking Children's Books"
+            ],
+            "_version_": 1735661143298408448
+          }
+        ]
+      }
+    },
+    {
+      "key": "/works/OL106035W",
+      "title": "The little steamroller",
+      "editions": {
+        "numFound": 1,
+        "start": 0,
+        "numFoundExact": true,
+        "docs": [
+          {
+            "key": "/books/OL11069040M",
+            "type": "edition",
+            "title": "Little Steamroller (Viking Kestrel Picture Books)",
+            "title_suggest": "Little Steamroller (Viking Kestrel Picture Books)",
+            "publisher": [
+              "Viking Children's Books"
+            ],
+            "publish_date": [
+              "November 14, 1994"
+            ],
+            "publish_year": [
+              1994
+            ],
+            "isbn": [
+              "9780670850969",
+              "0670850969"
+            ],
+            "ebook_access": "no_ebook",
+            "has_fulltext": false,
+            "public_scan_b": false,
+            "publisher_facet": [
+              "Viking Children's Books"
+            ],
+            "_version_": 1735747796957396993
+          }
+        ]
+      }
+    }
+  ],
+  "num_found": 4,
+  "q": "title: \"Viking Kestrel Picture Books\"",
+  "offset": null
+}
