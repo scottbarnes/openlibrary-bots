@@ -5,9 +5,11 @@ import pytest
 import requests
 from olclient.openlibrary import OpenLibrary
 from viking_kestrel_bot.constants import (
+    EDITION_DOES_NOT_NEED_UPDATING,
     EDITION_POST_PROCESSED,
     SERIES_PHRASE,
     TITLE_PHRASE,
+    WORK_DOES_NOT_NEED_UPDATING,
     WORK_POST_PROCESSED,
 )
 from viking_kestrel_bot.main import (
@@ -75,17 +77,38 @@ def test_remove_title_phrase_from_title_ignores_non_matching_titles():
 
 
 # TODO: This should be mocked. Dumb to use testing.openlibrary.org.
-def test_process_edition(setup_ol):
+def test_process_edition_that_needs_updating(setup_ol):
     ol = setup_ol
     book = ol.Edition.get("OL11068833M")
-    processed_book = process_edition(book, TITLE_PHRASE, SERIES_PHRASE)
+    processed_book, needs_updating = process_edition(book, TITLE_PHRASE, SERIES_PHRASE)
     print(processed_book.json())
     assert processed_book.json() == EDITION_POST_PROCESSED
+    assert needs_updating is True
 
 
-def test_process_work(setup_ol):
+def test_process_edition_that_does_not_need_updating(setup_ol):
+    ol = setup_ol
+    book = ol.Edition.get("OL22879676M")
+    processed_edition, needs_updating = process_edition(
+        book, TITLE_PHRASE, SERIES_PHRASE
+    )
+    assert needs_updating is False
+    assert processed_edition.json() == EDITION_DOES_NOT_NEED_UPDATING
+
+
+def test_process_work_that_needs_updating(setup_ol):
     ol = setup_ol
     work = ol.Work.get("OL19793284W")
-    processed_work = process_work(work, TITLE_PHRASE)
+    processed_work, needs_updating = process_work(work, TITLE_PHRASE)
     print(processed_work.json())
     assert processed_work.json() == WORK_POST_PROCESSED
+    assert needs_updating is True
+
+
+def test_process_work_that_does_not_need_updating(setup_ol):
+    ol = setup_ol
+    work = ol.Work.get("OL807816W")
+    processed_work, needs_updating = process_work(work, TITLE_PHRASE)
+    print(processed_work.json())
+    assert processed_work.json() == WORK_DOES_NOT_NEED_UPDATING
+    assert needs_updating is False

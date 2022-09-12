@@ -1,12 +1,21 @@
+from __future__ import annotations
+
 import json
+import re
 from collections.abc import Iterator
-from itertools import chain
+from itertools import chain, islice
 from pathlib import Path
 from typing import Any
 
 import requests
+from jsondiff import diff
 from olclient.openlibrary import OpenLibrary
-from viking_kestrel_bot.constants import SERIES_PHRASE, TITLE_PHRASE
+from viking_kestrel_bot.constants import (
+    BASE_SEARCH_URL,
+    QUERY,
+    SERIES_PHRASE,
+    TITLE_PHRASE,
+)
 
 
 def get_ol_ids_from_dict(query_dict: dict) -> Iterator[str]:
@@ -58,8 +67,9 @@ def get_ol_ids_from_dict(query_dict: dict) -> Iterator[str]:
 
 def has_title_phrase(title: str, title_phrase: str) -> bool:
     """Returns True if {title} has {title_phrase} and False otherwise."""
-    cleaved_title = title.split(title_phrase)
-    return True if len(cleaved_title) == 2 else False
+    pattern = re.escape(title_phrase)
+    pattern = re.compile(pattern, re.IGNORECASE)
+    return re.search(pattern, title) is not None
 
 
 def remove_title_phrase_from_title(title: str, title_phrase: str) -> str:
@@ -67,61 +77,78 @@ def remove_title_phrase_from_title(title: str, title_phrase: str) -> str:
     If {title_phrase} is present in {title}, return {title} stripped and without
     {title_phrase}. Otherwise just return the original title.
     """
-    cleaved_title = title.split(title_phrase)
-    if len(cleaved_title) == 2:
-        return cleaved_title[0].strip()
-    else:
-        return title
+    pattern = re.escape(title_phrase)
+    pattern = re.compile(pattern, re.IGNORECASE)
+    sub = re.sub(pattern, "", title)
+    return sub.strip()
 
 
 # TODO: Type 'Edition' properly.
 def process_edition(
     edition: Any, title_phrase: str, series_phrase: str
-) -> Any:  # Returns an Edition.
+) -> tuple[Any, bool]:  # Returns an Edition.
     """
     If necessary, remove {tile_phrase} from {edition}'s title and add {series_phrase}
     to the edition's series.
     """
+    needs_updating = False
+    before = edition.json()
 
     if has_title_phrase(edition.title, title_phrase):
         edition.title = remove_title_phrase_from_title(edition.title, title_phrase)
 
-    # Create the series list if needed.
-    try:
-        edition.series
-    except AttributeError:
-        edition.series = []
+        # Only update the series if the title is updated.
+        try:
+            edition.series
+        except AttributeError:
+            edition.series = []
 
-    if series_phrase not in edition.series:
-        edition.series.append(series_phrase)
+        if series_phrase not in edition.series:
+            edition.series.append(series_phrase)
 
-    return edition
+        needs_updating = True
+
+    after = edition.json()
+    if changes := diff(before, after):
+        print(f'Changing {edition.olid} from "{before.get("title")}" to {changes}')
+
+    return (edition, needs_updating)
 
 
-def process_work(work: Any, title_phrase: str) -> Any:  # Returns a work.
+def process_work(work: Any, title_phrase: str) -> tuple[Any, bool]:  # Returns a work.
     """
     Remove {title_phrase} from {work}'s title if necessary.
     """
+    needs_updating = False
+    before = work.json()
+
     if has_title_phrase(work.title, title_phrase):
         work.title = remove_title_phrase_from_title(work.title, title_phrase)
+        needs_updating = True
 
-    return work
+    after = work.json()
+    if changes := diff(before, after):
+        print(f'Changing {work.olid} from "{before.get("title")}" to {changes}')
+
+    return (work, needs_updating)
 
 
-def main(title_phrase, series_phrase) -> None:
+def main(
+    title_phrase: str, series_phrase: str, live: bool = False, end: int | None = 1
+) -> None:
     """Run everything."""
-    # TODO: change for live.
-    # ol = OpenLibrary()
-    ol = OpenLibrary(base_url="https://testing.openlibrary.org")
 
-    # TODO: for live, replace this with a response.get() of the JSON.
-    sample_query_response = Path("./tests/sample_query_response.json")
-    query_dict = {}
-    with sample_query_response.open(mode="r") as fp:
-        query_dict = json.load(fp)
+    ol = OpenLibrary(base_url="https://testing.openlibrary.org")
+    # sample_query_response = Path("./tests/sample_query_response.json")
+    # query_dict = {}
+    # with sample_query_response.open(mode="r") as fp:
+    #     query_dict = json.load(fp)
+
+    r = requests.get(BASE_SEARCH_URL + QUERY)
+    query_dict = r.json()
 
     # Update the title/series as needed.
-    for openlibrary_id in get_ol_ids_from_dict(query_dict):
+    for openlibrary_id in islice(set(get_ol_ids_from_dict(query_dict)), end):
 
         # Editions
         if openlibrary_id.endswith("M"):
@@ -129,9 +156,12 @@ def main(title_phrase, series_phrase) -> None:
             if not edition:
                 raise TypeError(f"Edition {openlibrary_id} returned None.")
 
-            edition = process_edition(edition, title_phrase, series_phrase)
-            # Here thte edition would be saved, but for now print it.
-            print(edition.json())
+            edition, needs_saving = process_edition(
+                edition, title_phrase, series_phrase
+            )
+            if needs_saving and live:
+                # edition.save()
+                pass
 
         # Works
         elif openlibrary_id.endswith("W"):
@@ -139,10 +169,12 @@ def main(title_phrase, series_phrase) -> None:
             if not work:
                 raise TypeError(f"Work {openlibrary_id} returned None.")
 
-            work = process_work(work, title_phrase)
-            # Here thte edition would be saved, but for now print it.
-            print(work.json())
+            work, needs_saving = process_work(work, title_phrase)
+            if needs_saving and live:
+                # work.save()
+                pass
 
 
+# only main() is used in collab.
 if __name__ == "__main__":
-    main(TITLE_PHRASE, SERIES_PHRASE)
+    main(TITLE_PHRASE, SERIES_PHRASE, live=False, end=None)
